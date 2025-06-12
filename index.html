@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <title>Video Tampilkan di Poli Padma</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <video id="vid" playsinline controls></video>
+
+  <script>
+    const videos = [
+      "assets/Poliklinik Padma RS Hermina Soreang.mp4",
+    //   "assets/CodeStrokeYeah2025-1080p.mp4",
+      "assets/Hermina x roket FIX TV - perbesar suara.mp4"
+    ];
+
+    const videoEl = document.getElementById('vid');
+    let index = 0;
+
+    function playNextVideo() {
+      videoEl.src = videos[index];
+      videoEl.muted = true;
+      videoEl.play();
+      index = (index + 1) % videos.length;
+    }
+
+    videoEl.addEventListener('ended', playNextVideo);
+
+    // Autoplay + unmute after interaction yeah
+    document.body.addEventListener('click', () => {
+      videoEl.muted = false;
+      videoEl.play();
+    });
+
+    // Start
+    playNextVideo();
+  </script>
+</body>
+</html>
