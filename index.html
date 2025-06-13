@@ -2,11 +2,12 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
-  <title>Video Tampilkan di Poli Padma</title>
+  <title>Playlist Video Poli Padma</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <video id="vid" playsinline controls></video>
+  <video id="vid" playsinline autoplay muted controls></video>
+  <button id="muteToggle" aria-label="Mute / Unmute">🔇</button>
 
   <script>
     const videos = [
@@ -15,26 +16,52 @@
       "assets/HerminaxRoketJNE-FIX-TV-perbesarsuara.mp4"
     ];
 
-    const videoEl = document.getElementById('vid');
-    let index = 0;
+    const videoEl = document.getElementById("vid");
+    const muteBtn = document.getElementById("muteToggle");
+    let i = 0;
+    let isMuted = true;
+    let hideTimer;
 
-    function playNextVideo() {
-      videoEl.src = videos[index];
-      videoEl.muted = true;
+    const updateIcon = () => muteBtn.textContent = isMuted ? "🔇" : "🔊";
+
+    const showButton = () => {
+      muteBtn.classList.remove("hide");
+      clearTimeout(hideTimer);
+      hideTimer = setTimeout(() => muteBtn.classList.add("hide"), 3000);
+    };
+
+    function playNext() {
+      videoEl.src   = videos[i];
+      videoEl.muted = isMuted;
       videoEl.play();
-      index = (index + 1) % videos.length;
+      i = (i + 1) % videos.length;
     }
 
-    videoEl.addEventListener('ended', playNextVideo);
+    videoEl.addEventListener("ended", playNext);
 
-    // Autoplay + unmute after interaction yeah
-    document.body.addEventListener('click', () => {
-      videoEl.muted = false;
-      videoEl.play();
+    muteBtn.addEventListener("click", () => {
+      isMuted       = !isMuted;
+      videoEl.muted = isMuted;
+      updateIcon();
+      showButton();
     });
 
-    // Start
-    playNextVideo();
+    ["mousemove","touchstart"].forEach(evt => {
+      document.addEventListener(evt, showButton, { passive:true });
+    });
+
+    document.body.addEventListener("click", () => {
+      if(isMuted){
+        isMuted = false;
+        videoEl.muted = false;
+        updateIcon();
+      }
+      showButton();
+    }, { once:true });
+
+    updateIcon();
+    showButton();   
+    playNext();
   </script>
 </body>
 </html>
