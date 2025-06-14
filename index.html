@@ -19,7 +19,7 @@
     const videoEl = document.getElementById("vid");
     const muteBtn = document.getElementById("muteToggle");
     let i = 0;
-    let isMuted = true;
+    let isMuted = false; //aslinya true
     let hideTimer;
 
     const updateIcon = () => muteBtn.textContent = isMuted ? "🔇" : "🔊";
