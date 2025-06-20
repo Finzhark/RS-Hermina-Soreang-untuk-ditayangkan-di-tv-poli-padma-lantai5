@@ -6,7 +6,7 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <video id="vid" playsinline autoplay muted controls></video>
+  <video id="vid" playsinline autoplay muted controls preload="none"></video>
   <button id="muteToggle" aria-label="Mute / Unmute">🔇</button>
 
   <script>
@@ -31,6 +31,7 @@
     };
 
     function playNext() {
+      videoEl.setAttribute('preload', 'auto');
       videoEl.src   = videos[i];
       videoEl.muted = isMuted;
       videoEl.play();
