@@ -6,40 +6,48 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <video id="vid" playsinline autoplay muted controls></video>
+  <video id="vid" playsinline muted controls></video>
   <button id="muteToggle" aria-label="Mute / Unmute">🔇</button>
 
   <script>
     const videos = [
-      // "public/assets/Poliklinik_Padma_RS_Hermina_Soreang.mp4",
       "public/assets/all video.mp4"
     ];
 
     const videoEl = document.getElementById("vid");
     const muteBtn = document.getElementById("muteToggle");
     let i = 0;
-    let isMuted = true; //aslinya true
+    let isMuted = true;
     let hideTimer;
+    let isVideoLoaded = false;
 
     const updateIcon = () => muteBtn.textContent = isMuted ? "🔇" : "🔊";
-
     const showButton = () => {
       muteBtn.classList.remove("hide");
       clearTimeout(hideTimer);
       hideTimer = setTimeout(() => muteBtn.classList.add("hide"), 3000);
     };
 
+    function loadAndPlayVideo() {
+      if (!isVideoLoaded) {
+        videoEl.src = videos[i];
+        videoEl.muted = isMuted;
+        videoEl.play();
+        isVideoLoaded = true;
+      }
+    }
+
     function playNext() {
-      videoEl.src   = videos[i];
+      i = (i + 1) % videos.length;
+      videoEl.src = videos[i];
       videoEl.muted = isMuted;
       videoEl.play();
-      i = (i + 1) % videos.length;
     }
 
     videoEl.addEventListener("ended", playNext);
 
     muteBtn.addEventListener("click", () => {
-      isMuted       = !isMuted;
+      isMuted = !isMuted;
       videoEl.muted = isMuted;
       updateIcon();
       showButton();
@@ -49,19 +57,7 @@
       document.addEventListener(evt, showButton, { passive:true });
     });
 
-    // document.body.addEventListener("click", () => {
-    //   if(isMuted){
-    //     isMuted = false;
-    //     videoEl.muted = false;
-    //     updateIcon();
-    //   }
-    //   showButton();
-    // }, { once:true });
-
-    // updateIcon();
-    // showButton();   
-    // playNext();
-
+    // Lazy load trigger on click anywhere: load video and enter fullscreen
     document.body.addEventListener("click", () => {
       if (isMuted) {
         isMuted = false;
@@ -70,25 +66,33 @@
       }
       showButton();
 
-      // 👉 Minta fullscreen
+      loadAndPlayVideo();
+
+      // request fullscreen
       if (videoEl.requestFullscreen) {
         videoEl.requestFullscreen();
-      } else if (videoEl.webkitRequestFullscreen) { // untuk Safari
+      } else if (videoEl.webkitRequestFullscreen) {
         videoEl.webkitRequestFullscreen();
-      } else if (videoEl.msRequestFullscreen) {     // untuk IE11
+      } else if (videoEl.msRequestFullscreen) {
         videoEl.msRequestFullscreen();
       }
-
     }, { once: true });
 
     updateIcon();
-    showButton();   
-    playNext();
+    showButton();
 
-    // videoEl.addEventListener("click", (event) => {
-    //   event.stopPropagation();
-    //   event.preventDefault();
-    // })
+    // Optional: Intersection Observer to load video when visible on screen (e.g. if video initially offscreen)
+    if ('IntersectionObserver' in window) {
+      const observer = new IntersectionObserver((entries, observer) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            loadAndPlayVideo();
+            observer.disconnect();
+          }
+        });
+      });
+      observer.observe(videoEl);
+    }
   </script>
 </body>
 </html>
